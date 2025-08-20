@@ -9,14 +9,16 @@ export const getpostordersdb = (
   nama_pelanggan,
   email_pelanggan,
   no_invoice,
-  status_pembayaran
+  status_pembayaran,
+  total_pembayaran
 ) => {
-  const sql = `INSERT INTO orders (id_orders,nama_pelanggan, email_pelanggan, no_invoice,status_pembayaran, deadline_pembelian) VALUES (?, ?, ?, ?, ?, DATE_ADD(NOW(), INTERVAL 1 HOUR))`;
+  const sql = `INSERT INTO orders (id_orders,nama_pelanggan, email_pelanggan, no_invoice,status_pembayaran, total_pembayaran, deadline_pembelian, proses, selesai) VALUES (?, ?, ?, ?, ?, ?, DATE_ADD(NOW(), INTERVAL 1 HOUR), 0, 0)`;
   return dbpool.query(sql, [
     id_orders,
     nama_pelanggan,
     email_pelanggan,
     no_invoice,
     status_pembayaran,
+    total_pembayaran,
   ]);
 };

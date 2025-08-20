@@ -3,6 +3,7 @@ import {
   paymentmidtrans,
   statuspayment,
 } from "../controller/payment.controller.js";
+import upload from "../middleware/multer.js";
 
 const paymentrouter = Router();
 

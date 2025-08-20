@@ -20,6 +20,7 @@ export const {
   SMTP_EMAIL,
   SMTP_EMAIL_PASSWORD,
   SERVER_KEY_MIDTRANS,
+  HOST_SERVER,
   //   SENDER_EMAIL,
   //   CRYPTO_KEY,
 } = process.env;

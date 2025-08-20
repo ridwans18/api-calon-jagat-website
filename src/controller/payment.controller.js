@@ -11,7 +11,7 @@ import { postitemorderdb } from "../models/items_order.models.js";
 export const paymentmidtrans = async (req, res) => {
   const { amount, data_pesanan, nama_pelanggan, email_pelanggan, phone } =
     req.body;
-  console.log(req.body);
+
   try {
     const kodeorder = generateKodeOrder();
     const date_invoice = new Date().getTime();
@@ -26,12 +26,14 @@ export const paymentmidtrans = async (req, res) => {
       nama_pelanggan,
       email_pelanggan,
       no_invoice,
-      status_pembayaran
+      status_pembayaran,
+      amount
     );
-    // console.log(kodeorder);
+    console.log(data);
     await data_pesanan.map((data) => {
       postitemorderdb(kodeorder, data.id_produk, data.qty);
     });
+
     let parameter = {
       transaction_details: {
         order_id: kodeorder,
@@ -49,7 +51,7 @@ export const paymentmidtrans = async (req, res) => {
 
     let transaction = await snap.createTransaction(parameter);
     let transactionToken = transaction.token;
-    console.log(transactionToken);
+
     res.status(200).json({ token: transactionToken });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -73,17 +75,14 @@ const updatestatusbasedonmidtrans = async (transaction_id, data) => {
   let transactionStatus = data.transaction_status;
   let fraudStatus = data.fraud_status;
 
-  // console.log(transaction_id);
   if (transactionStatus == "capture") {
     if (fraudStatus == "accept") {
       let [transaction] = await updatepaymentdb(transaction_id, "paid");
       responseData = transaction;
-      // console.log("paid", transaction);
     }
   } else if (transactionStatus == "settlement") {
     let [transaction] = await updatepaymentdb(transaction_id, "paid");
     responseData = transaction;
-    // console.log("paid", responseData);
   } else if (
     transactionStatus == "cancel" ||
     transactionStatus == "deny" ||
@@ -109,7 +108,7 @@ export const statuspayment = async (req, res) => {
   let datatransaction = null;
 
   let [transcation] = await checkorderbyid(data.order_id);
-  // console.log(transcation[0]);
+
   if (transcation.length !== 0) {
     datatransaction = await updatestatusbasedonmidtrans(
       transcation[0].id_orders,

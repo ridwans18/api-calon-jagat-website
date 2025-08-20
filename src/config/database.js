@@ -1,5 +1,5 @@
 import mysql from "mysql2";
-import { DB_DATABASE, DB_HOST, DB_PASSWORD, DB_USER } from "./env.js";
+import { DB_DATABASE, DB_HOST, DB_PASSWORD, DB_USER, PORT } from "./env.js";
 
 const dbpool = mysql
   .createConnection({
@@ -7,6 +7,10 @@ const dbpool = mysql
     user: DB_USER,
     password: DB_PASSWORD,
     database: DB_DATABASE,
+
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
   })
   .promise();
 

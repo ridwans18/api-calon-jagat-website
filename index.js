@@ -1,0 +1,38 @@
+import { PORT } from "./src/config/env.js";
+import express from "express";
+import produkrouter from "./src/routes/produk.routes.js";
+import ordersrouter from "./src/routes/orders.routes.js";
+import user_adminrouter from "./src/routes/user_admin.routes.js";
+import paymentrouter from "./src/routes/payment.routes.js";
+import cors from "cors";
+import upload from "./src/middleware/multer.js";
+import reportrouter from "./src/routes/report.routes.js";
+
+const app = express();
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cors());
+app.use("/assets", express.static("public/images"));
+
+app.use("/produk", produkrouter);
+app.use("/orders", ordersrouter);
+app.use("/user_admin", user_adminrouter);
+app.use("/payment", paymentrouter);
+app.use("/report", reportrouter);
+
+// app.post("/upload", upload.single("photo"), (req, res) => {
+//   res.json({
+//     message: "upload success",
+//   });
+// });
+
+app.use((err, req, res, next) => {
+  res.json({
+    message: err.message,
+  });
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});

@@ -57,7 +57,6 @@ export const handleLogin = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "login success",
-
       data: {
         Token: accessToken,
       },

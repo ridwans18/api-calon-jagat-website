@@ -1,10 +1,25 @@
-import { postitemorderdb } from "../models/items_order.models.js";
-import { getallordersdb, getpostordersdb } from "../models/orders.models.js";
+import {
+  getallitemorderdb,
+  getitemorderdb,
+  postitemorderdb,
+} from "../models/items_order.models.js";
+
 import generateKodeOrder from "../utility/generateKodeOrder.js";
 
 export const getallorders = async (req, res) => {
   try {
-    let [data] = await getallordersdb();
+    let data = await getallitemorderdb();
+
+    res.status(200).json({ succes: true, data });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+export const getorders = async (req, res) => {
+  const { id } = req.params;
+  try {
+    let data = await getitemorderdb(id);
+
     res.status(200).json({ succes: true, data });
   } catch (error) {
     res.status(500).json({ message: error.message });
