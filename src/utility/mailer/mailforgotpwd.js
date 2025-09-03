@@ -51,10 +51,10 @@ export const mailforgotpwd = (email, token) => {
 <body>
   <div class="container">
     <h2 class="header">Reset Your Password</h2>
-    <p>Hi [User Name],</p>
-    <p>You recently requested to reset your password. Click the button below to reset it:</p>
+    <p>Hi,</p>
+    <p>You recently requested to reset your password. Copy the code below:</p>
     <p style="text-align:center;">
-      <a href="https://www.tokopedia.com/" class="button">Reset Password</a>
+      ${token}
     </p>
     <p>If you didn't request a password reset, please ignore this email or contact support if you have questions.</p>
     <p>Thanks,<br>The Calon Jagat Team</p>

@@ -6,7 +6,12 @@ import { error } from "console";
 import { updatepaymentdb } from "../models/payment.models.js";
 import generateKodeOrder from "../utility/generateKodeOrder.js";
 import { getpostordersdb } from "../models/orders.models.js";
-import { postitemorderdb } from "../models/items_order.models.js";
+import {
+  getitemorderdb,
+  postitemorderdb,
+  updateincrementstockdb,
+  updatestockdb,
+} from "../models/items_order.models.js";
 
 export const paymentmidtrans = async (req, res) => {
   const { amount, data_pesanan, nama_pelanggan, email_pelanggan, phone } =
@@ -29,9 +34,10 @@ export const paymentmidtrans = async (req, res) => {
       status_pembayaran,
       amount
     );
-    console.log(data);
-    await data_pesanan.map((data) => {
-      postitemorderdb(kodeorder, data.id_produk, data.qty);
+
+    await data_pesanan.map(async (data) => {
+      await postitemorderdb(kodeorder, data.id_produk, data.qty);
+      // await updatestockdb(data.id_produk, data.qty);
     });
 
     let parameter = {
@@ -90,11 +96,12 @@ const updatestatusbasedonmidtrans = async (transaction_id, data) => {
   ) {
     let [transaction] = await updatepaymentdb(transaction_id, "failed");
     responseData = transaction;
-    console.log("failed", responseData);
+
+    await updateincrementstockdb(transaction_id);
   } else if (transactionStatus == "pending") {
     let [transaction] = await updatepaymentdb(transaction_id, "pending");
     responseData = transaction;
-    console.log("pending", responseData);
+    await updatestockdb(transaction_id);
   }
 
   return {

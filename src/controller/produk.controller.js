@@ -5,8 +5,10 @@ import {
   totalPagedb,
   getallprodukdb,
   getaprodukdb,
+  patchprodukdb,
 } from "../models/produk.models.js";
 import { HOST_SERVER } from "../config/env.js";
+import hapusFile from "../utility/hapusfile.js";
 
 export const getitemproduk = async (req, res) => {
   const { id } = req.params;
@@ -45,6 +47,7 @@ export const getallproduk = async (req, res) => {
 
 export const postproduk = async (req, res) => {
   const { id, nama, harga, stock, deskripsi } = req.body;
+
   const { filename: imgname } = req.file;
 
   const img = `https://${HOST_SERVER}/assets/${imgname}`;
@@ -62,14 +65,29 @@ export const postproduk = async (req, res) => {
 };
 
 export const patchproduk = async (req, res) => {
-  const { id, nama, harga, stock, img, deskripsi } = req.body;
+  const { id } = req.params;
+  const { nama, harga, stock, deskripsi, oldimg } = req.body;
+  let img = null;
+  if (req.file) {
+    const { filename: imgname } = req.file;
+    img = `https://${HOST_SERVER}/assets/${imgname}`;
+  } else {
+    img = `https://${HOST_SERVER}/assets/${oldimg}`;
+  }
 
   try {
-    let data = await postprodukdb(nama, harga, stock, img, deskripsi);
-    console.log(data);
+    let data = null;
+
+    if (req.file) {
+      data = await patchprodukdb(id, nama, harga, stock, img, deskripsi);
+      await hapusFile(oldimg);
+    } else {
+      data = await patchprodukdb(id, nama, harga, stock, img, deskripsi);
+    }
+
     res.status(200).json({
       succes: true,
-      data: { nama: nama, harga: harga, stock: stock, img: img },
+      data,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

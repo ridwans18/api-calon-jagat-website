@@ -4,6 +4,21 @@ export const postitemorderdb = (id_orders, id_produk, jumlah) => {
   return dbpool.query(sql, [id_orders, id_produk, jumlah]);
 };
 
+export const updatestockdb = (id_order) => {
+  const sql = `UPDATE produk p
+  JOIN items_order io ON p.id_produk = io.id_produk
+  SET p.stock = p.stock - io.quantity
+  WHERE io.id_orders = ?`;
+  return dbpool.query(sql, [id_order]);
+};
+
+export const updateincrementstockdb = (id) => {
+  const sql = `UPDATE produk p
+  JOIN items_order io ON p.id_produk = io.id_produk
+  SET p.stock = p.stock + io.quantity
+  WHERE io.id_orders = ?`;
+  return dbpool.query(sql, [id]);
+};
 export const getallitemorderdb = async () => {
   const query = `
     SELECT 
@@ -14,6 +29,8 @@ export const getallitemorderdb = async () => {
       p.id_produk,
       p.nama_produk,
       p.harga,
+      o.total_pembayaran,
+      o.selesai,
       io.quantity
     FROM orders o
     JOIN items_order io ON o.id_orders = io.id_orders
@@ -33,7 +50,9 @@ export const getallitemorderdb = async () => {
         nama_pelanggan: row.nama_pelanggan,
         status_pembayaran: row.status_pembayaran,
         tanggal_pembelian: row.tanggal_pembelian,
+        selesai: row.selesai,
         produk: [],
+        total_pembayaran: row.total_pembayaran,
       };
     }
 
@@ -48,6 +67,64 @@ export const getallitemorderdb = async () => {
   return Object.values(grouped);
 };
 
+export const getallitemorderbystatusdb = async () => {
+  const query = `
+    SELECT 
+      o.id_orders,
+      o.no_invoice,
+      
+      o.selesai,
+      o.nama_pelanggan,
+      o.status_pembayaran,
+      o.tanggal_pembelian,
+      o.total_pembayaran,
+      p.id_produk,
+      p.nama_produk,
+      p.harga,
+      io.quantity
+    FROM orders o
+    JOIN items_order io ON o.id_orders = io.id_orders
+    JOIN produk p ON io.id_produk = p.id_produk
+    WHERE o.selesai = 0
+      AND o.status_pembayaran = 'paid'
+    ORDER BY o.tanggal_pembelian DESC
+  `;
+
+  const [rows] = await dbpool.query(query);
+
+  if (rows.length === 0) {
+    return [];
+  }
+
+  // Gabungkan per order
+  const ordersMap = {};
+  rows.forEach((r) => {
+    if (!ordersMap[r.id_orders]) {
+      ordersMap[r.id_orders] = {
+        id_orders: r.id_orders,
+        no_invoice: r.no_invoice,
+        proses: r.proses,
+        selesai: r.selesai,
+        nama_pelanggan: r.nama_pelanggan,
+        status_pembayaran: r.status_pembayaran,
+        tanggal_pembelian: r.tanggal_pembelian,
+        produk: [],
+        total_pembayaran: r.total_pembayaran,
+      };
+    }
+
+    ordersMap[r.id_orders].produk.push({
+      id_produk: r.id_produk,
+      nama_produk: r.nama_produk,
+      harga: r.harga,
+      quantity: r.quantity,
+    });
+  });
+
+  // Convert hasil object ke array
+  return Object.values(ordersMap);
+};
+
 export const getitemorderdb = async (id_orders) => {
   const query = `
     SELECT 
@@ -58,6 +135,7 @@ export const getitemorderdb = async (id_orders) => {
       o.nama_pelanggan,
       o.status_pembayaran,
       o.tanggal_pembelian,
+      o.total_pembayaran,
       p.id_produk,
       p.nama_produk,
       p.harga,
@@ -65,7 +143,7 @@ export const getitemorderdb = async (id_orders) => {
     FROM orders o
     JOIN items_order io ON o.id_orders = io.id_orders
     JOIN produk p ON io.id_produk = p.id_produk
-    WHERE o.id_orders = ?
+    WHERE o.id_orders = ? AND o.status_pembayaran = "paid"
     ORDER BY o.tanggal_pembelian DESC
   `;
 
@@ -89,7 +167,7 @@ export const getitemorderdb = async (id_orders) => {
       harga: r.harga,
       quantity: r.quantity,
     })),
-    total_pembayaran: rows.reduce((acc, r) => acc + r.harga * r.quantity, 0),
+    total_pembayaran: rows[0].total_pembayaran,
   };
 
   return order;

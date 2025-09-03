@@ -4,8 +4,9 @@ import {
   getReportDaily,
   getReportPorduct,
   getTotalPaidTransaction,
+  getReportProductexcel,
 } from "../models/report.models.js";
-
+import ExcelJS from "exceljs";
 export const reportMonthController = async (req, res) => {
   try {
     const [result] = await getReportMonth();
@@ -60,5 +61,59 @@ export const reportProduct = async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+export const generateExcell = async (req, res) => {
+  try {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Data Report");
+
+    worksheet.columns = [
+      { header: "No", key: "no", width: 5 },
+      { header: "Product", key: "product", width: 30 },
+      { header: "Total Terjual", key: "total_terjual", width: 5 },
+      { header: "Harga Satuan", key: "harga_satuan", width: 5 },
+      { header: "Total", key: "total", width: 30 },
+    ];
+
+    const [data] = await getReportProductexcel();
+
+    const total_price = data.reduce((acc, item) => {
+      return acc + item.harga * item.total_terjual;
+    }, 0);
+
+    data.forEach((item, index) => {
+      worksheet.addRow({
+        no: index,
+        product: item.nama_produk,
+        total_terjual: item.total_terjual,
+        harga_satuan: item.harga,
+        total: item.harga * item.total_terjual,
+      });
+    });
+
+    worksheet.mergeCells(`A${data.length + 2}:D${data.length + 2}`);
+    worksheet.getCell(
+      `A${data.length + 2}:D${data.length + 2}`
+    ).value = `Total:`;
+    worksheet.getCell(`E${data.length + 2}`).value = `${total_price}`;
+    worksheet.getCell(`A${data.length + 2}`).alignment = {
+      horizontal: "center",
+    };
+    worksheet.getCell(`E${data.length + 2}`).alignment = {
+      horizontal: "right",
+    };
+
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    res.setHeader("Content-Disposition", "attachment; filename=report.xlsx");
+    await workbook.xlsx.write(res);
+
+    res.end();
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };

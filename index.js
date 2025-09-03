@@ -12,7 +12,12 @@ const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true, // ini WAJIB biar cookie bisa ikut
+  })
+);
 app.use("/assets", express.static("public/images"));
 
 app.use("/produk", produkrouter);
@@ -20,12 +25,6 @@ app.use("/orders", ordersrouter);
 app.use("/user_admin", user_adminrouter);
 app.use("/payment", paymentrouter);
 app.use("/report", reportrouter);
-
-// app.post("/upload", upload.single("photo"), (req, res) => {
-//   res.json({
-//     message: "upload success",
-//   });
-// });
 
 app.use((err, req, res, next) => {
   res.json({

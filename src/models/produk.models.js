@@ -24,8 +24,11 @@ export const postprodukdb = (nama, harga, stock, img, deskripsi) => {
 };
 
 export const patchprodukdb = (id, nama, harga, stock, img, deskripsi) => {
-  const sql = `UPDATE produk SET nama_produk, harga, deskripsi, stock, img WHERE id
-              VALUES (?, ?, ?, ?, ?)`;
+  const sql = `
+    UPDATE produk 
+    SET nama_produk = ?, harga = ?, deskripsi = ?, stock = ?, img = ?
+    WHERE id_produk = ?
+  `;
   return dbpool.query(sql, [nama, harga, deskripsi, stock, img, id]);
 };
 

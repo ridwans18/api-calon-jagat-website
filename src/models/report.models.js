@@ -100,3 +100,20 @@ export const getReportProduct = () => {
   `;
   return dbpool.query(query);
 };
+
+export const getReportProductexcel = () => {
+  const query = `
+    SELECT 
+    p.id_produk,
+    p.nama_produk,
+    p.harga,
+    SUM(io.quantity) AS total_terjual
+    FROM items_order io
+    JOIN produk p ON io.id_produk = p.id_produk
+    JOIN orders o ON io.id_orders = o.id_orders
+    WHERE o.status_pembayaran = 'paid'  
+    GROUP BY p.id_produk, p.nama_produk
+    ORDER BY total_terjual DESC;
+  `;
+  return dbpool.query(query);
+};
