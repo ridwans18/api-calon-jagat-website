@@ -5,8 +5,8 @@ import ordersrouter from "./src/routes/orders.routes.js";
 import user_adminrouter from "./src/routes/user_admin.routes.js";
 import paymentrouter from "./src/routes/payment.routes.js";
 import cors from "cors";
-import upload from "./src/middleware/multer.js";
 import reportrouter from "./src/routes/report.routes.js";
+import saranroute from "./src/routes/saran.routes.js";
 
 const app = express();
 
@@ -25,6 +25,7 @@ app.use("/orders", ordersrouter);
 app.use("/user_admin", user_adminrouter);
 app.use("/payment", paymentrouter);
 app.use("/report", reportrouter);
+app.use("/saran", saranroute);
 
 app.use((err, req, res, next) => {
   res.json({

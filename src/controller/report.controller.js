@@ -65,6 +65,7 @@ export const reportProduct = async (req, res) => {
 };
 
 export const generateExcell = async (req, res) => {
+  const { start, end } = req.body;
   try {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Data Report");
@@ -73,11 +74,11 @@ export const generateExcell = async (req, res) => {
       { header: "No", key: "no", width: 5 },
       { header: "Product", key: "product", width: 30 },
       { header: "Total Terjual", key: "total_terjual", width: 5 },
-      { header: "Harga Satuan", key: "harga_satuan", width: 5 },
+      { header: "Harga Satuan", key: "harga_satuan", width: 15 },
       { header: "Total", key: "total", width: 30 },
     ];
 
-    const [data] = await getReportProductexcel();
+    const [data] = await getReportProductexcel(start, end);
 
     const total_price = data.reduce((acc, item) => {
       return acc + item.harga * item.total_terjual;
@@ -85,7 +86,7 @@ export const generateExcell = async (req, res) => {
 
     data.forEach((item, index) => {
       worksheet.addRow({
-        no: index,
+        no: index + 1,
         product: item.nama_produk,
         total_terjual: item.total_terjual,
         harga_satuan: item.harga,

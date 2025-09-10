@@ -5,7 +5,7 @@ import { SERVER_KEY_MIDTRANS } from "../config/env.js";
 import { error } from "console";
 import { updatepaymentdb } from "../models/payment.models.js";
 import generateKodeOrder from "../utility/generateKodeOrder.js";
-import { getpostordersdb } from "../models/orders.models.js";
+import { getallordersdb, getpostordersdb } from "../models/orders.models.js";
 import {
   getitemorderdb,
   postitemorderdb,
@@ -24,7 +24,7 @@ export const paymentmidtrans = async (req, res) => {
       .toString(36)
       .substring(2, 6)
       .toUpperCase()}`;
-    const status_pembayaran = "pending";
+    const status_pembayaran = "created";
 
     let [data] = await getpostordersdb(
       kodeorder,
@@ -58,7 +58,7 @@ export const paymentmidtrans = async (req, res) => {
     let transaction = await snap.createTransaction(parameter);
     let transactionToken = transaction.token;
 
-    res.status(200).json({ token: transactionToken });
+    res.status(200).json({ token: transactionToken, kodeorder });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -71,6 +71,7 @@ const updatestatusbasedonmidtrans = async (transaction_id, data) => {
       `${transaction_id}${data.status_code}${data.gross_amount}${SERVER_KEY_MIDTRANS}`
     )
     .digest("hex");
+
   if (hash !== data.signature_key) {
     return {
       status: error,

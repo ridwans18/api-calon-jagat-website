@@ -130,8 +130,8 @@ export const getitemorderdb = async (id_orders) => {
     SELECT 
       o.id_orders,
       o.no_invoice,
-      o.proses,
       o.selesai,
+      
       o.nama_pelanggan,
       o.status_pembayaran,
       o.tanggal_pembelian,
@@ -143,8 +143,8 @@ export const getitemorderdb = async (id_orders) => {
     FROM orders o
     JOIN items_order io ON o.id_orders = io.id_orders
     JOIN produk p ON io.id_produk = p.id_produk
-    WHERE o.id_orders = ? AND o.status_pembayaran = "paid"
-    ORDER BY o.tanggal_pembelian DESC
+    WHERE o.id_orders = ?
+    
   `;
 
   const [rows] = await dbpool.query(query, [id_orders]);

@@ -101,9 +101,9 @@ export const getReportProduct = () => {
   return dbpool.query(query);
 };
 
-export const getReportProductexcel = () => {
+export const getReportProductexcel = (start, end) => {
   const query = `
-    SELECT 
+    SELECT
     p.id_produk,
     p.nama_produk,
     p.harga,
@@ -111,9 +111,10 @@ export const getReportProductexcel = () => {
     FROM items_order io
     JOIN produk p ON io.id_produk = p.id_produk
     JOIN orders o ON io.id_orders = o.id_orders
-    WHERE o.status_pembayaran = 'paid'  
+    WHERE o.status_pembayaran = 'paid'    
+    AND o.tanggal_pembelian BETWEEN ? AND ?
     GROUP BY p.id_produk, p.nama_produk
     ORDER BY total_terjual DESC;
   `;
-  return dbpool.query(query);
+  return dbpool.query(query, [start, end]);
 };
