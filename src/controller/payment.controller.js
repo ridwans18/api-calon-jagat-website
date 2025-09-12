@@ -24,13 +24,18 @@ export const paymentmidtrans = async (req, res) => {
   } = req.body;
 
   try {
+    let status = null;
     const kodeorder = generateKodeOrder();
     const date_invoice = new Date().getTime();
     const no_invoice = `INV-${date_invoice}-${Math.random()
       .toString(36)
       .substring(2, 6)
       .toUpperCase()}`;
-    if (!req.body.status_pembayaran) status_pembayaran = "created";
+    if (!req.body.status_pembayaran) {
+      status_pembayaran = "created";
+      status = false;
+    }
+    if (req.body.status_pembayaran) status = true;
 
     let [data] = await getpostordersdb(
       kodeorder,
@@ -39,7 +44,8 @@ export const paymentmidtrans = async (req, res) => {
       no_invoice,
       status_pembayaran,
       amount,
-      phone
+      phone,
+      status
     );
 
     await data_pesanan.map(async (data) => {
