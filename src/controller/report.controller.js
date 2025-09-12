@@ -5,6 +5,7 @@ import {
   getReportPorduct,
   getTotalPaidTransaction,
   getReportProductexcel,
+  getReportOrder,
 } from "../models/report.models.js";
 import ExcelJS from "exceljs";
 export const reportMonthController = async (req, res) => {
@@ -12,6 +13,7 @@ export const reportMonthController = async (req, res) => {
     const [result] = await getReportMonth();
     const [report_product] = await getReportPorduct();
     const [total_paid] = await getTotalPaidTransaction();
+    const [total_orders] = await getReportOrder();
 
     res.json({
       success: true,
@@ -19,6 +21,7 @@ export const reportMonthController = async (req, res) => {
       data: result,
       report_product: report_product,
       total_paid_transaction: total_paid.jumlah_transaksi_paid,
+      total_orders: total_orders,
     });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getsaran, postsaran } from "../controller/saran.controller";
+import { getsaran, postsaran } from "../controller/saran.controller.js";
 
 const saranroute = Router();
 

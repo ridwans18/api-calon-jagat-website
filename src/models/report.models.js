@@ -112,9 +112,19 @@ export const getReportProductexcel = (start, end) => {
     JOIN produk p ON io.id_produk = p.id_produk
     JOIN orders o ON io.id_orders = o.id_orders
     WHERE o.status_pembayaran = 'paid'    
-    AND o.tanggal_pembelian BETWEEN ? AND ?
+    AND DATE(o.tanggal_pembelian) BETWEEN ? AND ?
     GROUP BY p.id_produk, p.nama_produk
     ORDER BY total_terjual DESC;
   `;
   return dbpool.query(query, [start, end]);
+};
+
+export const getReportOrder = (start, end) => {
+  const query = `
+    SELECT 
+    COUNT(*) AS total_orders_paid
+    FROM orders
+    WHERE status_pembayaran = 'paid';
+  `;
+  return dbpool.query(query);
 };

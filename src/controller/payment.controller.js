@@ -14,8 +14,14 @@ import {
 } from "../models/items_order.models.js";
 
 export const paymentmidtrans = async (req, res) => {
-  const { amount, data_pesanan, nama_pelanggan, email_pelanggan, phone } =
-    req.body;
+  let {
+    amount,
+    data_pesanan,
+    nama_pelanggan,
+    email_pelanggan,
+    phone,
+    status_pembayaran,
+  } = req.body;
 
   try {
     const kodeorder = generateKodeOrder();
@@ -24,7 +30,7 @@ export const paymentmidtrans = async (req, res) => {
       .toString(36)
       .substring(2, 6)
       .toUpperCase()}`;
-    const status_pembayaran = "created";
+    if (!req.body.status_pembayaran) status_pembayaran = "created";
 
     let [data] = await getpostordersdb(
       kodeorder,
@@ -32,7 +38,8 @@ export const paymentmidtrans = async (req, res) => {
       email_pelanggan,
       no_invoice,
       status_pembayaran,
-      amount
+      amount,
+      phone
     );
 
     await data_pesanan.map(async (data) => {
@@ -108,6 +115,8 @@ const updatestatusbasedonmidtrans = async (transaction_id, data) => {
   return {
     status: "success",
     data: responseData,
+    transactionStatus: transactionStatus,
+    fraudStatus: fraudStatus,
   };
 };
 

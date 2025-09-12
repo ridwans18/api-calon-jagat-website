@@ -85,7 +85,7 @@ export const getallitemorderbystatusdb = async () => {
     FROM orders o
     JOIN items_order io ON o.id_orders = io.id_orders
     JOIN produk p ON io.id_produk = p.id_produk
-    WHERE o.selesai = 0
+    WHERE o.selesai = 'false'
       AND o.status_pembayaran = 'paid'
     ORDER BY o.tanggal_pembelian DESC
   `;
@@ -131,7 +131,7 @@ export const getitemorderdb = async (id_orders) => {
       o.id_orders,
       o.no_invoice,
       o.selesai,
-      
+      0.nomor,
       o.nama_pelanggan,
       o.status_pembayaran,
       o.tanggal_pembelian,

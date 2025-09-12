@@ -8,6 +8,7 @@ import {
   postorders,
   getorderspaid,
 } from "../controller/orders.controller.js";
+import { verifyJWT } from "../middleware/verifyJWT.middleware.js";
 
 const ordersrouter = Router();
 
@@ -17,6 +18,6 @@ ordersrouter.get("/expired", getordersexpired);
 ordersrouter.get("/status", getorderbystatus);
 ordersrouter.get("/:id", getorders);
 ordersrouter.post("/", postorders);
-ordersrouter.patch("/:id", patchorderselesai);
+ordersrouter.patch("/:id", verifyJWT, patchorderselesai);
 
 export default ordersrouter;
